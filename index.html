@@ -1,0 +1,62 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Video Demo</title>
+</head>
+
+<body>
+    <h2>Original Video</h2>
+    <video id="v" autoplay width="400" height="300" controls loop>
+        <source src="DemoVideo.webm" type="video/webm">
+        <source src="DemoVideo.ogg" type="video/ogg">
+        <source src="DemoVideo.mp4" type="video/mp4">
+    </video>
+    <h2>Second Video</h2>
+    <canvas id="c" width="400" height="300"></canvas>
+
+    <script type="text/javascript" src="stackblur.js"></script>
+    <script>
+        var v = document.getElementById('v');
+        var canvas = document.getElementById('c');
+        var context = canvas.getContext('2d');
+        var back = document.createElement('canvas');
+        var backcontext = back.getContext('2d');
+
+        var cw, ch;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            
+            v.addEventListener('play', function () {
+                cw = v.clientWidth;
+                ch = v.clientHeight;
+                canvas.width = cw;
+                canvas.height = ch;
+                back.width = cw;
+                back.height = ch;
+                draw(v, context, backcontext, cw, ch);
+            }, false);
+
+        }, false);
+
+        function draw(v, c, bc, w, h) {
+            if (v.paused || v.ended) return false;
+            // First, draw it into the backing canvas
+            bc.drawImage(v, 0, 0, w, h);
+            // Grab the pixel data from the backing canvas
+            var idata = bc.getImageData(0, 0, w, h);
+            var data = idata.data;
+            // Loop through the pixels, turning them grayscale
+          
+            idata.data = data;
+            // Draw the pixels onto the visible canvas
+            c.putImageData(idata, 0, 0);
+            StackBlur.canvasRGB(canvas, 0, 0, canvas.width, canvas.height, 10);
+            // Start over!
+            setTimeout(function () { draw(v, c, bc, w, h); }, 0);
+        }
+    </script>
+
+</body>
+</html>
